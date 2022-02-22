@@ -1,0 +1,13 @@
+Subsystem,Module Name,Module Acronym,Repo
+Core,Visitor Management System,VMS,https://gitlab.com/MiggyJ/capstone_visitor
+Core,Treatment Management System,TMS,https://github.com/DzhonPetrus/Treatment-Management
+Logistics,Asset Management,AM,https://github.com/YoojinKazama/capstoneAssetManagement
+Human Resource,Performance Management,PerfMS,https://gitlab.com/lHyuven/performance_management_system
+Core,Medical Record System,MRS,https://github.com/jndia000/medicalrecords
+Human Resource,Time and Attendance,TA,https://github.com/glomar016/time_and_attendance/
+Logistics,Warehousing,WMS,https://github.com/hayz0101/warehousing_system
+Finance,Collection/Disbursement,CMS,https://gitlab.com/hms-collection-disbursement/homies-cms
+Logistics,Project Management System,ProjMS,https://gitlab.com/jeffersonborjal019/pm-web
+Logistics,Procurement,ProcMS,https://gitlab.com/kristanbalin/capstone-procurement
+Human Resource,Recruitment MS,RMS,https://github.com/PrensDev/hospital-recruitment-management-system
+Core,Doctors Management System,DMS,https://gitlab.com/evlsc/capstone/
