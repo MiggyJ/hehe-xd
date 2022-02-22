@@ -632,6 +632,189 @@ class Request(Base):
 #*-----end of core------
 
 #** FINANCE
+#? BILLING
+class HospitalServiceName(Base):
+    __tablename__ = "hospital_service_name"
+    id = Column(String(36), primary_key=True,index=True)
+    description_name = Column(String(255),nullable=False,unique=True, index=True)
+    unit_price = Column(Float, nullable=False)
+    status = Column(String(100), default='Active')
+    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+class HospitalServices(Base):
+    __tablename__ = "hospital_services"
+    id = Column(String(36), primary_key=True,index=True)
+    patient_id = Column(String(36), ForeignKey("patient_registration.patient_id"),nullable=False)
+    hospital_service_name_id = Column(String(36), ForeignKey("hospital_service_name.id"),nullable=False)
+    quantity= Column(Float,nullable=False)
+    date= Column(Date, nullable=False)
+    total_amount= Column(Float,nullable=False)
+ 
+    status = Column(String(100), default='Pending',nullable=False) #nullable=False             ### STATUS TO FOR BILLING ###
+    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    hc_treatment_services = relationship(
+         "HospitalServiceName", primaryjoin="and_(HospitalServices.hospital_service_name_id==HospitalServiceName.id)")
+
+    patient_info = relationship(
+        "PatientRegistration", primaryjoin="and_(HospitalServices.patient_id==PatientRegistration.patient_id)")  #NEW1 PatientRegistration
+
+class HospitalChargesBill(Base):
+    __tablename__ = "hospital_charges_bill"
+    id = Column(CHAR(36), primary_key=True,index=True)
+    invoice_no= Column(String(100) ,unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
+    hospital_services_id = Column(String(36), ForeignKey("hospital_services.id"),nullable=False,unique=True)
+    total_amount= Column(Float,nullable=False)
+    cancellation_return = Column(Float, nullable=True)
+
+    status = Column(String(100), default='Active')
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
+    
+    hospital_charges_id_info = relationship(
+         "HospitalServices", primaryjoin="and_(HospitalChargesBill.hospital_services_id==HospitalServices.id)")  #NEW1 HospitalServices hospital_services_id
+
+class TreatmentBill(Base):
+    __tablename__ = "treatment_bill"
+    id = Column(CHAR(36), primary_key=True,index=True)
+    invoice_no= Column(String(100) ,unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
+
+    treatment_id = Column(String(36), ForeignKey("treatments.id"),nullable=False)
+    total_amount= Column(Float,nullable=False)
+    cancellation_return = Column(Float, nullable=True)
+
+    status = Column(String(255), nullable=False, server_default="Pending")
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
+
+    treatment_id_info = relationship(
+         "Treatment", primaryjoin="and_(TreatmentBill.treatment_id==Treatment.id)")
+
+class LabRequestBill(Base):
+    __tablename__ = "lab_requests_bill"
+    id = Column(CHAR(36), primary_key=True,index=True)
+    invoice_no= Column(String(100) ,unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
+
+    lab_requests_id = Column(String(36), ForeignKey("lab_requests.id"),nullable=False)
+    total_amount= Column(Float,nullable=False)
+    cancellation_return = Column(Float, nullable=True)
+
+    status = Column(String(255), nullable=False, server_default="Pending")
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
+
+    lab_requests_id_info = relationship(
+        "LabRequest", primaryjoin="and_(LabRequestBill.lab_requests_id==LabRequest.id)")
+
+class PharmacyBill(Base):
+    __tablename__ = "pharmacy_bill"
+    id = Column(CHAR(36), primary_key=True,index=True)
+    invoice_no= Column(String(100) ,unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
+    # pharmacy_invoice_id = Column(String(36), ForeignKey("pharmacy_invoice.id"),nullable=False) #NEW1 REMOVED COLUMN
+    medicine_pr_id= Column(CHAR(36),ForeignKey("medicine_pr.medpr_id"),nullable=False)  #NEW1 NEW COLUMN #medicalsupplies_pr
+    total_amount= Column(Float,nullable=False)
+    cancellation_return = Column(Float, nullable=True  , default=00)
+
+    status = Column(String(255), nullable=False, server_default="Pending")
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())  
+
+class RoomBill(Base):
+    __tablename__ = "room_bill"    
+    id = Column(CHAR(36), primary_key=True)
+    invoice_no = Column(String(100), nullable=False, unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+    inpatient_id = Column(String(36), ForeignKey("inpatients.admission_id"), nullable=False) #NEW1 Deleted management
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"), nullable=True)
+    total_amount = Column(Float, nullable=False)
+
+    status = Column(String(255), nullable=False, server_default="Pending")
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
+    
+    inpatient_management_id_info = relationship(
+         "Inpatient", primaryjoin="and_(RoomBill.inpatient_id==Inpatient.admission_id)") #NEW1 Management deleted
+
+class DoctorFeeBill(Base):
+    __tablename__ = "doctor_fee_bill"
+    id = Column(CHAR(36), primary_key=True,index=True)
+    invoice_no= Column(String(100) ,unique=True)
+    invoice_date = Column(DateTime, nullable=False)
+
+    inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
+    doctor_id = Column(String(36), ForeignKey("doctor_profile.doctor_id"),nullable=False)
+    
+    actual_pf = Column(Float,nullable=False)
+    sc_pwd_discount = Column(Float, nullable=True)
+    philhealth = Column(Float, nullable=True)
+    discount = Column(Float, nullable=True)
+    hmo = Column(Float, nullable=True)
+    patient_due = Column(Float, nullable=False)
+
+    status = Column(String(100), default='Active')
+    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
+    
+class InpatientBill(Base):
+    __tablename__ = "inpatient_bills"    
+    id = Column(CHAR(36), primary_key=True)
+    inpatient_bill_no = Column(String(255), nullable=False, unique=True)
+    admission_id = Column(String(36), ForeignKey("inpatients.admission_id"),nullable=False)
+    inpatient_payment_id = Column(String(36), ForeignKey("inpatient_payments.id"),nullable=True)
+
+    date_of_billing = Column(Date,nullable=False)
+    due_date = Column(Date,nullable=False)
+    balance_due = Column(Float, nullable=False, server_default="0")
+    status = Column(String(255), nullable=False, server_default="Pending")
+    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())
+
+    admission_info = relationship(
+       "Inpatient", primaryjoin="and_(InpatientBill.admission_id==Inpatient.admission_id)")
+    bill_treatments = relationship(
+        "TreatmentBill", primaryjoin="and_(InpatientBill.id ==TreatmentBill.inpatient_bill_id)")
+    bill_lab_requests = relationship(
+        "LabRequestBill", primaryjoin="and_(InpatientBill.id ==LabRequestBill.inpatient_bill_id)")
+    bill_pharmacy = relationship(
+        "PharmacyBill", primaryjoin="and_(InpatientBill.id ==PharmacyBill.inpatient_bill_id)")
+    bill_hospital_charges = relationship(
+        "HospitalChargesBill", primaryjoin="and_(InpatientBill.id ==HospitalChargesBill.inpatient_bill_id)")
+    bill_room = relationship(
+        "RoomBill", primaryjoin="and_(InpatientBill.id ==RoomBill.inpatient_bill_id)")
+    bill_doctor_fee = relationship(
+        "DoctorFeeBill", primaryjoin="and_(InpatientBill.id ==DoctorFeeBill.inpatient_bill_id)")
+
+
 #*-----end of finance-----
 
 #** HUMAR RESOURCE
