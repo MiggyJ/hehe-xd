@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from sqlalchemy import func
 from sqlalchemy import Text, String, Boolean, Date, DateTime, Numeric, Integer, Time, Float, DECIMAL, text
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
@@ -111,6 +111,156 @@ class Visit_Blacklist(Base):
 
     user = relationship('User', back_populates='blacklist', uselist=False)
     profile = relationship('User_Profile', secondary='join(User, User_Profile, User.id == User_Profile.user_id)', secondaryjoin='User_Profile.user_id == User.id', viewonly=True, uselist=False)
+
+#? DOCTOR MANAGEMENT
+class Doctor_profile(Base):
+    __tablename__ = "doctor_profile"
+    doctor_id = Column(String(36),  primary_key=True, default=uuid.uuid4)
+    photo = Column(String(255), nullable=True)
+    label = Column(String(5), nullable= False, default="Dr.")
+    doctor_first_name  = Column(String(255), nullable= True)
+    doctor_middle_name  = Column(String(255), nullable= True)
+    doctor_last_name = Column(String(255), nullable= True)
+    doctor_home_address = Column(String(255), nullable= True)
+    doctor_location = Column(String(255), nullable= True)
+    doctor_mobile = Column(String(255), nullable= True)
+    doctor_schedule =  Column(String(255), nullable=True)
+    specialization_id  = Column(String(36), ForeignKey('specialization.specialization_id'))
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+    doctor_specialization = relationship("Specialization", backref=backref("doctor_profile", uselist=False)) 
+
+class Patient_profile(Base):
+    __tablename__ = "patient_profile"
+    patient_id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    patient_first_name  = Column(String(255), nullable= False)
+    patient_middle_name = Column(String(255), nullable= True)
+    patient_last_name  = Column(String(255), nullable= False)
+    patient_age  = Column(Integer, nullable= True)
+    patient_gender  = Column(String(6), nullable= True)
+    # patient_symptoms = Column(String(255))
+    patient_mobile = Column(String(255), nullable= True)
+    patient_address = Column(String(255), nullable= True)
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+class Specialization(Base):
+    __tablename__= "specialization"
+
+    specialization_id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    specialization_name = Column(String(255), nullable= False)
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+class Service_report(Base):
+    __tablename__ = "service_report"
+
+    report_id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    doctor_id = Column(String(36), ForeignKey('doctor_profile.doctor_id'), nullable= True)
+    patient_name = Column(String(255), nullable= True)
+    team_id = Column(String(36), ForeignKey('team.team_id'), nullable= True)
+    patient_name = Column(String(255), nullable= True)
+    # treatment_id = Column(String(36), ForeignKey('treatment.treatment_id'))
+    treatment_id = Column(String(255), nullable= True, default="There's no findings yet.")
+    background = Column(String(255), nullable= True, default="There's no findings yet.")
+    symptoms = Column(String(255), nullable= True, default="There's no findings yet.")
+    test = Column(String(255), nullable= True, default="There's no findings yet.")
+    findings = Column(Text(255), nullable= False, default="There's no findings yet.")
+    remarks = Column(Text(255), nullable= True)
+    patient_status = Column(Text(255), nullable= True, default="Evaluating")
+    report_status =  Column(String(255), default="On-going")
+    report_type =  Column(Text(255), nullable= False)
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+    doctor = relationship("Doctor_profile", backref=backref("service_report", uselist=False))
+    # patient = relationship("Patient_profile", backref=backref("service_report", uselist=False))
+    team = relationship("Team", backref=backref("service_report", uselist=False))
+    # treatment = relationship("Treatment", backref=backref("service_report", uselist=False)) #one to one
+   
+class Treatment(Base):
+    __tablename__ = "treatment"
+
+    treatment_id  = Column(String(36), primary_key=True, default=uuid.uuid4)
+    treatment_name = Column(String(255), nullable= False)
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+class Department(Base):
+    __tablename__ = "department"
+
+    department_id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    department_name = Column(String(255), nullable= False)
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+    department_team = relationship("Team")
+
+class Team(Base):
+    __tablename__ = "team"
+
+    team_id  = Column(String(36), primary_key=True, default=uuid.uuid4)
+    department_id  = Column(String(36), ForeignKey('department.department_id'))
+    team_name =  Column(String(255), nullable= False)
+    team_member_id = Column(String(36), ForeignKey('doctor_profile.doctor_id'))
+    status =  Column(String(255), default="Active")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+
+    doctor_team = relationship("Doctor_profile", backref=backref("team", uselist=False))
+
+class Appointment(Base):
+    __tablename__ = "appointment"
+
+    appointment_id = Column(String(36), primary_key=True, default=uuid.uuid4)
+    appointment_procedure = Column(String(255), nullable= False)
+    appointment_procedure_name = Column(String(255), nullable= False)
+    appointment_covid_test = Column(String(255), nullable= True)
+    appointment_location = Column(String(255), nullable= True)
+    appointment_schedule = Column(DateTime(timezone=True))
+    firstname = Column(String(255), nullable= False)
+    middlename = Column(String(255), nullable= True)
+    lastname = Column(String(255), nullable= False)
+    age  = Column(Integer, nullable= False)
+    gender  = Column(String(255), nullable= True)
+    mobile = Column(String(255), nullable= True)
+    email = Column(String(255), nullable= True)
+    address =  Column(String(255), nullable= False)
+    patient_id = Column(String(36), ForeignKey('patient_profile.patient_id'))
+    doctor_id = Column(String(36), ForeignKey('doctor_profile.doctor_id'))
+    chart = Column(String(36), ForeignKey('service_report.report_id'), nullable= True )
+    patient_remarks =  Column(String(255), nullable= True)
+    doctor_remarks =  Column(String(255), nullable= True)
+    status =  Column(String(255), default="Pending")
+    created_by= Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    created_at =  Column(DateTime(timezone=True), server_default=func.now())
+    updated_by = Column(String(36), ForeignKey('user.user_id'), nullable= True)
+    updated_at =  Column(DateTime(timezone=True), server_default=func.now())
+    # procedure = relationship("Appointment_procedure", backref=backref("appointment", uselist=False))
+    patient_appointment = relationship("Patient_profile", backref=backref("appointment", uselist=False))
+    doctor_appointment = relationship("Doctor_profile", backref=backref("appointment", uselist=False))
+    service = relationship("Service_report", backref=backref("appointment", uselist=False))
+
 
 #? TREATMENT MANAGEMENT
 class InPatient(Base):
