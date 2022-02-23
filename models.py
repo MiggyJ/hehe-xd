@@ -631,7 +631,6 @@ class Request(Base):
     requesterFK = relationship('Patient', back_populates='patientrequestFK')
 
 #? PATIENT MANAGEMENT
-
 class DischargeManagement(Base):
     __tablename__ = 'discharge_management'
 
@@ -847,6 +846,172 @@ class Room(Base):
     room_inpatientFk = relationship('Inpatient', foreign_keys=[admission_id])
     room_outpatientFk = relationship('Outpatient', foreign_keys=[outpatient_id])
 
+#? PHARMACY SYSTEM
+class Medicine(Base):
+    __tablename__= 'medicines'
+    id= Column(String(36), primary_key=True, index=True)
+    med_product_name = Column (String(255), unique=True,nullable=False)
+    med_quantity = Column(Integer,nullable=False)
+    med_manufacturer = Column (String(36),ForeignKey("manufacturers.id"), nullable=True)
+    med_manufactured_date = Column (Date,nullable=False)
+    med_import_date = Column(Date,nullable=False)
+    med_expiration_date = Column (Date,nullable=False)
+    med_batch_number = Column (Integer,nullable=False)
+    med_unit_price = Column (Float,nullable=False)
+    med_tax = Column (Integer,nullable=True)
+    med_purpose = Column (String(255),nullable=False)
+    condition = Column(String(255),nullable=False, default="no issue")
+    status = Column(String(255),nullable=False, default="High")
+    dosage = Column (Integer,nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    manufacturer_information = relationship("Manufacturer", primaryjoin="and_(Medicine.med_manufacturer==Manufacturer.id)", back_populates="medicine_info")
+    #PRESCRIPTION MEDICINE (sa Patient management system)
+    #  med_pr = relationship("Medicine_PR", primaryjoin="and_(Medicine.id==Medicine_PR.medicine_id)",back_populates="medicine_info")
+    #POS MEDICINE
+    medicine_item = relationship("Medicine_item", primaryjoin="and_(Medicine.id==Medicine_item.medicine_id)", back_populates="medicine_info")
+
+# MEDICAL SUPPLIES TABLE
+class MedicalSupplies(Base):
+    __tablename__= 'medicalsupplies'
+    id= Column(String(36), primary_key=True, index=True)
+    ms_product_name = Column (String(255), unique=True,nullable=False)
+    ms_quantity = Column(Integer,nullable=False)
+    ms_manufacturer = Column (String(36),ForeignKey("manufacturers.id"), nullable=True)
+    ms_manufactured_date = Column (Date,nullable=False)
+    ms_import_date = Column(Date,nullable=False)
+    ms_expiration_date = Column (Date,nullable=False)
+    ms_batch_number = Column (Integer,nullable=False)
+    ms_unit_price = Column (Float,nullable=False)
+    ms_tax = Column (Integer,nullable=True)
+    ms_purpose = Column (String(255),nullable=False)
+    condition = Column(String(255),nullable=False, default="no issue")
+    status = Column(String(255),nullable=False, default="High")
+    #dosage = Column (Integer,nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    manufacturer_information = relationship("Manufacturer", primaryjoin="and_(MedicalSupplies.ms_manufacturer==Manufacturer.id)", back_populates="medicalsupplies_info")
+    # invoice_info = relationship("Invoice", primaryjoin="and_(MedicalSupplies.id==Invoice.medical_id)",back_populates="medical_info")
+    # PRESCRIPTION FOR MEDICAL SUPPPLIES  (sa Patient management system)
+    # medical_pr = relationship("MedicalSupplies_PR", primaryjoin="and_(MedicalSupplies.id==MedicalSupplies_PR.medical_id)",back_populates="medical_info")
+    #POS Medical
+    medical_item = relationship("Medical_item", primaryjoin="and_(MedicalSupplies.id==Medical_item.medical_id)", back_populates="medical_info")
+ 
+#MANUFACTURER TABLE
+class Manufacturer(Base):
+    __tablename__= 'manufacturers'
+
+    id= Column(String(36), primary_key=True, index=True)
+    manufacturer_name= Column(String(255), nullable=False,unique=True, index=True)
+    mfg_license= Column(String(255), nullable= False)
+    email_address= Column (String(255),nullable=False,unique=True, index=True)
+    contact_num= Column (String(255),nullable=False,unique=True, index=True)
+    manufacturer_address= Column (String(255),nullable=False)
+    status = Column(String(255),nullable=False, default="Active")
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    medicine_info = relationship("Medicine", primaryjoin="and_(Manufacturer.id==Medicine.med_manufacturer)",back_populates="manufacturer_information")
+    medicalsupplies_info = relationship("MedicalSupplies", primaryjoin="and_(Manufacturer.id==MedicalSupplies.ms_manufacturer)",back_populates="manufacturer_information")
+
+#inpatient_prescription_invoice (CONNECTED WITH PATEINT MANAGEMENT SYSTEM )
+class Inpatient_invoice(Base):
+    __tablename__= 'inpatient_invoice'
+
+    id= Column(String(36), primary_key=True, index=True)
+    invoice_no = Column(String(255), nullable=False,unique=True, index=True)
+    admission_id = Column(String(36), ForeignKey("inpatient.admission_id"),nullable=True) #table ng Patient management system
+    invoice_date = Column(Date,nullable=True)
+    medicine_amount= Column(Float, nullable=False)
+    medical_amount= Column(Float, nullable=False)
+    subtotal = Column(Float, nullable=False)
+    total_amount= Column(Float, nullable=False)
+    status = Column(String(255),nullable=False, default="Unpaid")
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+
+    inpatient_info = relationship("Inpatient", primaryjoin="and_(Inpatient_invoice.admission_id==Inpatient.admission_id)")
+    sales_invoice = relationship("Sales", primaryjoin="and_(Inpatient_invoice.id==Sales.invoice_id)", back_populates="invoice_info")
+
+#Receipt
+class Receipt(Base):
+    __tablename__= 'receipt'
+
+    id = Column(String(36), primary_key=True, index=True)
+    date = Column(Date,nullable=True)
+    receipt_no = Column(String(255), nullable=False,unique=True, index=True)
+    medicine_amount = Column(Float, nullable=False)
+    medical_amount = Column(Float, nullable=False)
+    total_amount = Column(Float, nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+    status = Column(String(255),nullable=False, default="Paid")
+    medicine_receipt = relationship("Medicine_item", primaryjoin="and_(Receipt.id==Medicine_item.receipt_id)", back_populates="receipt_info")
+    medical_receipt = relationship("Medical_item", primaryjoin="and_(Receipt.id==Medical_item.receipt_id)", back_populates="receipt_info")
+    sales_receipt = relationship("Sales", primaryjoin="and_(Receipt.id==Sales.receipt_id)", back_populates="receipt_info")
+
+#Receipt_medicine_item
+class Medicine_item(Base):
+    __tablename__= 'medicine_item'
+
+    id = Column(String(36), primary_key=True, index=True)
+    receipt_id = Column(String(36), ForeignKey("receipt.id"),nullable=True)
+    medicine_id = Column(String(36), ForeignKey("medicines.id"),nullable=True)
+    quantity = Column(Integer,nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    receipt_info= relationship("Receipt", primaryjoin="and_(Medicine_item.receipt_id==Receipt.id)", back_populates="medicine_receipt")
+    medicine_info = relationship("Medicine", primaryjoin="and_(Medicine_item.medicine_id==Medicine.id)", back_populates="medicine_item")
+
+#Receipt_medical_item
+class Medical_item(Base):
+    __tablename__= 'medical_item'
+
+    id = Column(String(36), primary_key=True, index=True)
+    receipt_id = Column(String(36), ForeignKey("receipt.id"),nullable=True)
+    medical_id = Column(String(36), ForeignKey("medicalsupplies.id"),nullable=True)
+    quantity = Column(Integer,nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+
+    receipt_info= relationship("Receipt", primaryjoin="and_(Medical_item.receipt_id==Receipt.id)", back_populates="medical_receipt")
+    medical_info= relationship("MedicalSupplies", primaryjoin="and_(Medical_item.medical_id==MedicalSupplies.id)", back_populates="medical_item")
+
+#Sales
+class Sales(Base):
+    __tablename__= 'sales'
+
+    id = Column(String(36), primary_key=True, index=True)
+    invoice_id = Column(String(36), ForeignKey("inpatient_invoice.id"),nullable=True)
+    receipt_id = Column(String(36), ForeignKey("receipt.id"),nullable=True)
+    date = Column(Date,nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=True)
+    created_at = Column(DateTime,nullable=False)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
+    updated_at = Column(DateTime,nullable=True)
+    status = Column(String(255),nullable=False, default="Paid")
+    
+    invoice_info = relationship("Inpatient_invoice", primaryjoin="and_(Sales.invoice_id==Inpatient_invoice.id)", back_populates="sales_invoice")
+    receipt_info = relationship("Receipt", primaryjoin="and_(Sales.receipt_id==Receipt.id)", back_populates="sales_receipt")
+
 
 #*-----end of core------
 
@@ -1033,7 +1198,27 @@ class InpatientBill(Base):
     bill_doctor_fee = relationship(
         "DoctorFeeBill", primaryjoin="and_(InpatientBill.id ==DoctorFeeBill.inpatient_bill_id)")
 
+#? COLLECTION
+class Patient_cash_payment(Base):
+    __tablename__ = "patient_cash_payments"    
+    id = Column(String(36), primary_key=True)
+    cash_payment_no = Column(String(255),nullable=False,unique=True)
+    amount = Column(Float,nullable=False)
+    status = Column(String(255), nullable=False, server_default="Active")
+    
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
+    updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())
 
+    patient_cash_in_request_payment = relationship("Inpatient_lab_request_payment", primaryjoin="and_(Inpatient_lab_request_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_request_payment_patient_cash")
+    patient_cash_in_prescription_payment = relationship("Inpatient_prescription_payment", primaryjoin="and_(Inpatient_prescription_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_prescription_payment_patient_cash")
+    patient_cash_in_treatment_payment = relationship("Inpatient_treatment_payment", primaryjoin="and_(Inpatient_treatment_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_treatment_payment_patient_cash")
+    patient_cash_in_surgery_payment = relationship("Inpatient_surgery_payment", primaryjoin="and_(Inpatient_surgery_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_surgery_payment_patient_cash")
+    patient_cash_in_room_payment = relationship("Inpatient_room_payment", primaryjoin="and_(Inpatient_room_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_room_payment_patient_cash")
+    patient_cash_out_request_payment = relationship("Outpatient_lab_request_payment", primaryjoin="and_(Outpatient_lab_request_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="out_request_payment_patient_cash")
+    patient_cash_out_treatment_payment = relationship("Outpatient_treatment_payment", primaryjoin="and_(Outpatient_treatment_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="out_treatment_payment_patient_cash")
+    patient_cash_in_payment = relationship("Inpatient_payment", primaryjoin="and_(Inpatient_payment.patient_cash_payment_id==Patient_cash_payment.id)", back_populates="in_payment_patient_cash")
 #*-----end of finance-----
 
 #** HUMAN RESOURCE
@@ -4222,11 +4407,306 @@ class Warehouses(Base):
 
     manager = relationship('Employees', back_populates='w_employeeFK')
 
-    #** FINANCE
-    #? COLLECTION/DISBURSEMENT
+#** PROJECT MANAGEMENT
+# Hiram namin sa Core Human
+class Employee(Base):
+    __tablename__ = 'employees'
 
-    
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    first_name = Column(String(255), nullable=False)
+    middle_name = Column(String(255), server_default='', nullable=True)
+    last_name = Column(String(255), nullable=False)
+    suffix_name = Column(String(255), server_default='', nullable=True)
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
+    job_id = Column(String(36), ForeignKey('jobs.id'), nullable=False)
+    department_id = Column(String(36), ForeignKey('departments.id'), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
+    user_employee = relationship('User', back_populates='employee_user')
+    job = relationship('Job', back_populates='employee')
+    projects = relationship('Project', back_populates='project_user')
+    departments = relationship('Department', back_populates='department_employee')
+    employee_concept = relationship('ConceptPaper', back_populates='concept_employee')
+    employee_task = relationship('Task', back_populates='task_employee')
+    employee_activity = relationship('Activity', back_populates='activity_employee')
+    employee_history = relationship('ProjectHistory', back_populates='history_employee')
+
+# Hiram namin sa Core Human
+class Job(Base):
+    __tablename__ = 'jobs'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    title = Column(String(36), nullable=False)
+    description = Column(TEXT(255), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    employee = relationship('Employee', back_populates='job')
+
+# Hiram namin sa Core Human
+class Department(Base):
+    __tablename__ = 'departments'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    description = Column(TEXT(255), nullable=False)
+    location = Column(String(255), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    department_employee = relationship('Employee', back_populates='departments')
+    department_projects = relationship('Project', back_populates='project_department')
+    department_concept = relationship('ConceptPaper', back_populates='concept_department')
+
+class ConceptPaper(Base):
+    __tablename__ = 'concept_papers'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    background = Column(TEXT(255), nullable=False)
+    coverage = Column(TEXT(255), nullable=False)
+    type = Column(String(255), nullable=False)
+    target_beneficiaries = Column(TEXT(255), nullable=False)
+    objectives = Column(TEXT(255), nullable=False)
+    expected_output = Column(TEXT(255), nullable=False)
+    assumptions = Column(TEXT(255), nullable=False)
+    constraints = Column(TEXT(255), nullable=False)
+    cost = Column(Float, nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    remarks = Column(TEXT(255), nullable=True)
+    manager_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
+    department_id = Column(String(36), ForeignKey('departments.id'), nullable=False)
+    approval_status = Column(String(255), server_default='Pending', nullable=False)
+    notification = Column(String(255), nullable=True)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    concept_employee = relationship('Employee', back_populates='employee_concept')
+    concept_department = relationship('Department', back_populates='department_concept')
+    concept_budget = relationship('BudgetRequirements', back_populates='budget_concept')
+    concept_project = relationship('Project', back_populates='project_concept')
+
+class Project(Base):
+    __tablename__ = 'projects'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    background = Column(TEXT(255), nullable=False)
+    coverage = Column(TEXT(255), nullable=False)
+    type = Column(String(255), nullable=False)
+    target_beneficiaries = Column(TEXT(255), nullable=False)
+    objectives = Column(TEXT(255), nullable=False)
+    expected_output = Column(TEXT(255), nullable=False)
+    assumptions = Column(TEXT(255), nullable=False)
+    constraints = Column(TEXT(255), nullable=False)
+    cost = Column(Float, nullable=False)
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime, nullable=False)
+    remarks = Column(TEXT(255), nullable=True)
+    concept_paper_id = Column(String(36), ForeignKey('concept_papers.id'), nullable=True)
+    manager_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
+    department_id = Column(String(36), ForeignKey('departments.id'), nullable=False)
+    approval_status = Column(String(255), server_default='Pending', nullable=False)
+    progress_status = Column(String(255), server_default='', nullable=True)
+    notification = Column(String(255), nullable=True)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    project_user = relationship('Employee', back_populates='projects')
+    project_department = relationship('Department', back_populates='department_projects')
+    project_task = relationship('Task', back_populates='task_project')
+    project_quotation = relationship('Quotation', back_populates='quotation_project')
+    project_activity = relationship('Activity', back_populates='activity_project')
+    project_document = relationship('Document', back_populates='document_project')
+    project_history = relationship('ProjectHistory', back_populates='history_project')
+    project_milestone = relationship('Milestones', back_populates='milestone_project')
+    project_budget = relationship('BudgetRequirements', back_populates='budget_project')
+    project_stakeholder = relationship('Stakeholder', back_populates='stakeholder_project')
+    project_concept = relationship('ConceptPaper', back_populates='concept_project')
+    project_tor = relationship('TermsOfReference', back_populates='tor_project')
+
+class BudgetRequirements(Base):
+    __tablename__ = 'budget_requirements'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    description = Column(TEXT(255), nullable=False)
+    cost = Column(Float, nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=True)
+    concept_paper_id = Column(String(36), ForeignKey('concept_papers.id'), nullable=True)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    budget_project = relationship('Project', back_populates='project_budget')
+    budget_concept = relationship('ConceptPaper', back_populates='concept_budget')
+
+# Tasks ng project
+class Task(Base):
+    __tablename__ = 'tasks'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    description = Column(TEXT(255), nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    employee_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
+    deadline = Column(DateTime, nullable=False)
+    priority = Column(String(255), nullable=False)
+    remarks = Column(String(255), nullable=True)
+    status = Column(String(255), server_default='On Track', nullable=False)
+    progress_status = Column(String(255), server_default='To Do', nullable=False)
+    notification = Column(String(255), nullable=True)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    task_project = relationship('Project', back_populates='project_task')
+    task_employee = relationship('Employee', back_populates='employee_task')
+    task_quotation = relationship('Quotation', back_populates='quotation_task')
+    task_activity = relationship('Activity', back_populates='activity_task')
+
+class Quotation(Base):
+    __tablename__ = 'quotations'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    task_id = Column(String(36), ForeignKey('tasks.id'), nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text(255), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    total = Column(Float, nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    quotation_project = relationship('Project', back_populates='project_quotation')
+    quotation_task = relationship('Task', back_populates='task_quotation')
+
+# Activities sa tasks
+class Activity(Base):
+    __tablename__ = 'activities'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    subject = Column(String(255), nullable=False)
+    remarks = Column(TEXT(255), nullable=False)
+    date = Column(DateTime, nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    task_id = Column(String(36), ForeignKey('tasks.id'), nullable=False)
+    employee_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    activity_project = relationship('Project', back_populates='project_activity')
+    activity_task = relationship('Task', back_populates='task_activity')
+    activity_employee = relationship('Employee', back_populates='employee_activity')
+
+# Related documents sa project
+class Document(Base):
+    __tablename__ = 'documents'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    file = Column(TEXT(255), nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    document_project = relationship('Project', back_populates='project_document')
+
+class ProjectHistory(Base):
+    __tablename__ = 'project_history'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    employee_id = Column(String(36), ForeignKey('employees.id'), nullable=True)
+    subject = Column(String(255), nullable=False)
+    date = Column(DateTime, server_default=text('NOW()'))
+    remarks = Column(TEXT(255), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    history_project = relationship('Project', back_populates='project_history')
+    history_employee = relationship('Employee', back_populates='employee_history')
+
+class Milestones(Base):
+    __tablename__ = 'milestones'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    description = Column(TEXT(255), nullable=False)
+    date = Column(DateTime, nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    milestone_project = relationship('Project', back_populates='project_milestone')
+
+class Stakeholder(Base):
+    __tablename__ = 'stakeholders'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    name = Column(String(255), nullable=False)
+    role = Column(String(255), nullable=False)
+    expectation = Column(String(255), nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=False)
+    active_status = Column(String(255), server_default='Active', nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    stakeholder_project = relationship('Project', back_populates='project_stakeholder')
+
+# Hiram namin sa Procurement
+class TermsOfReference(Base):
+    __tablename__ = 'terms_of_reference'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    title = Column(String(255), nullable=False)
+    background = Column(TEXT(255), nullable=False)
+    objective = Column(TEXT(255), nullable=False)
+    scope_of_service = Column(TEXT(255), nullable=False)
+    tor_deliverables = Column(TEXT(255), nullable=False)
+    qualifications = Column(TEXT(255), nullable=False)
+    reporting_and_working_arrangements = Column(TEXT(255), nullable=False)
+    tor_annex_technical_specifications = Column(TEXT(255), nullable=False)
+    tor_annex_key_experts = Column(TEXT(255), nullable=False)
+    source_of_funds = Column(TEXT(255), nullable=False)
+    tor_annex_deliverables = Column(TEXT(255), nullable=False)
+    tor_annex_terms_conditions = Column(TEXT(255), nullable=False)
+    status = Column(String(255), server_default='', nullable=False)
+    project_id = Column(String(36), ForeignKey('projects.id'), nullable=True)
+    vendor_id = Column(String(36), ForeignKey('vendors.id'), nullable=True)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    tor_project = relationship('Project', back_populates='project_tor')
+    tor_vendor = relationship('Vendor', back_populates='vendor_tor')
+
+# Hiram namin sa Procurement
+class Vendor(Base):
+    __tablename__ = 'vendors'
+
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
+    vendor_name = Column(String(255), nullable=False)
+    contact_person = Column(String(255), nullable=False)
+    contact_no = Column(Integer, nullable=False)
+    vendor_website = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    organization_type = Column(String(255), nullable=False)
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
+
+    vendor_tor = relationship('TermsOfReference', back_populates='tor_vendor')
 
 
 
