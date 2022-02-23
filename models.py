@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 from sqlalchemy import func
-from sqlalchemy import Text, String, Boolean, Date, DateTime, Numeric, Integer, Time, Float, DECIMAL, Text
+from sqlalchemy import Text, String, Boolean, Date, DateTime, Numeric, Integer, Time, Float, DECIMAL, text
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -17,7 +17,7 @@ Base = declarative_base()
 class Station(Base):
     __tablename__ = 'stations'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     name = Column(String(255), nullable=False)
     location = Column(String(255), nullable=False)
 
@@ -26,13 +26,13 @@ class Station(Base):
 class Health_Form(Base):
     __tablename__ = 'health_forms'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
     full_name = Column(String(255), nullable=True)
     email = Column(String(255), nullable=True)
     symptoms = Column(String(255), nullable=True)
     condition = Column(String(255), nullable=False)
-    date_submitted = Column(Date, nullable=False, default=Text('NOW()'))
+    date_submitted = Column(Date, nullable=False, default=text('NOW()'))
 
     user = relationship('User', back_populates='health_form')
     health_pass = relationship('Pass', back_populates='health_form')
@@ -40,7 +40,7 @@ class Health_Form(Base):
 class Appointment(Base):
     __tablename__ = 'appointments'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
     station_id = Column(String(36), ForeignKey('stations.id'), nullable=True)
     full_name = Column(String(255), nullable=False)
@@ -67,7 +67,7 @@ class Appointment(Base):
 class Pass(Base):
     __tablename__ = 'passes'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
     appointment_id = Column(String(36), ForeignKey('appointments.id'), nullable=True)
     health_form_id = Column(String(36), ForeignKey('health_forms.id'), nullable=True)
@@ -82,11 +82,11 @@ class Pass(Base):
 class Visit(Base):
     __tablename__ = 'visits'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     pass_id = Column(String(36), ForeignKey('passes.id'), nullable=True)
     image = Column(String(255), nullable=False)
     remarks = Column(Text, nullable=False)
-    check_in = Column(DateTime, default=Text('NOW()'))
+    check_in = Column(DateTime, default=text('NOW()'))
     check_out = Column(DateTime, nullable=True)
 
     visit_pass = relationship('Pass', back_populates='visit')
@@ -97,17 +97,17 @@ class Visit(Base):
 class Visit_Blacklist(Base):
     __tablename__ = 'blacklists'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
     full_name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     birth_date = Column(Date, nullable=False)
     image = Column(String(255), nullable=True)
     remarks = Column(Text, nullable=False)
-    is_active = Column(Boolean, default=Text('1'))
-    is_seen = Column(Boolean, default=Text('0'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    is_active = Column(Boolean, default=text('1'))
+    is_seen = Column(Boolean, default=text('0'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     user = relationship('User', back_populates='blacklist', uselist=False)
     profile = relationship('User_Profile', secondary='join(User, User_Profile, User.id == User_Profile.user_id)', secondaryjoin='User_Profile.user_id == User.id', viewonly=True, uselist=False)
@@ -116,7 +116,7 @@ class Visit_Blacklist(Base):
 class InPatient(Base):
     __tablename__ = "inpatients"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     first_name = Column(String(100))
     middle_name = Column(String(100))
     last_name = Column(String(100))
@@ -130,8 +130,8 @@ class InPatient(Base):
 
 
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     surgeries = relationship('Surgery', back_populates='inpatient')
@@ -141,7 +141,7 @@ class InPatient(Base):
 class LabRequest(Base):
     __tablename__ = "lab_requests"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     lab_test_id = Column(String(36), ForeignKey("lab_tests.id"))
     # lab_result_id = Column(String(36), ForeignKey("lab_results.id"))
     inpatient_id = Column(String(36), ForeignKey("inpatients.id"))
@@ -152,8 +152,8 @@ class LabRequest(Base):
 
     is_active = Column(String(100), default='ACTIVE')
     status = Column(String(100), default='PENDING')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     lab_result = relationship('LabResult', back_populates='lab_request')
@@ -166,7 +166,7 @@ class LabRequest(Base):
 class LabResult(Base):
     __tablename__ = "lab_results"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     lab_request_id = Column(String(36), ForeignKey("lab_requests.id"))
     specimen = Column(String(100))
     result = Column(Text)
@@ -184,8 +184,8 @@ class LabResult(Base):
 
     status = Column(String(100), default='PROCESSING')
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     lab_request = relationship('LabRequest', back_populates='lab_result')
@@ -193,21 +193,21 @@ class LabResult(Base):
 class LabTest(Base):
     __tablename__ = "lab_tests"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     name = Column(String(100), unique=True)
     description = Column(Text)
     fee = Column(Numeric(15,2))
 
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     lab_requests = relationship('LabRequest', back_populates='lab_test')
 
 class OutPatient(Base):
     __tablename__ = "outpatients"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     first_name = Column(String(100))
     middle_name = Column(String(100))
     last_name = Column(String(100))
@@ -221,8 +221,8 @@ class OutPatient(Base):
 
 
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     treatments = relationship('Treatment', back_populates='outpatient')
@@ -231,7 +231,7 @@ class OutPatient(Base):
 class SurgeryInCharge(Base):
     __tablename__ = "surgery_in_charge"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     professional_fee = Column(Numeric(15,2))
 
 
@@ -244,15 +244,15 @@ class SurgeryInCharge(Base):
 class SurgeryType(Base):
     __tablename__ = "surgery_types"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     name = Column(String(100), unique=True)
     description = Column(Text)
     price = Column(Numeric(15,2))
 
 
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     surgeries = relationship("Surgery", back_populates="surgery_type")
@@ -260,7 +260,7 @@ class SurgeryType(Base):
 class Surgery(Base):
     __tablename__ = "surgeries"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     surgery_no = Column(String(100))
     inpatient_id = Column(String(36), ForeignKey("inpatients.id"))
 
@@ -275,8 +275,8 @@ class Surgery(Base):
 
     is_active = Column(String(100), default='ACTIVE')
     status = Column(String(100), default='PENDING')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     inpatient = relationship('InPatient', back_populates='surgeries')
@@ -287,7 +287,7 @@ class Surgery(Base):
 class TreatmentType(Base):
     __tablename__ = "treatment_types"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     name = Column(String(100), unique=True)
     room = Column(String(100))
     description = Column(Text)
@@ -295,8 +295,8 @@ class TreatmentType(Base):
 
 
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     treatments = relationship('Treatment', back_populates='treatment_type')
@@ -304,7 +304,7 @@ class TreatmentType(Base):
 class Treatment(Base):
     __tablename__ = "treatments"
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     treatment_no = Column(String(100))
     room = Column(String(100))
     quantity = Column(Numeric(15,2), nullable=False)
@@ -326,8 +326,8 @@ class Treatment(Base):
 
     status = Column(String(100), default='PENDING')
     is_active = Column(String(100), default='ACTIVE')
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 
     inpatient = relationship('InPatient', back_populates='treatments')
@@ -339,7 +339,7 @@ class Treatment(Base):
 class Doctor(Base):
     __tablename__ = 'doctors'
 
-    doc_id          = Column(String(36), primary_key=True, default=Text('UUID()'))
+    doc_id          = Column(String(36), primary_key=True, default=text('UUID()'))
     first_name      = Column(String(255), nullable=False)
     middle_name     = Column(String(255), nullable=True)
     last_name       = Column(String(255), nullable=False)
@@ -351,8 +351,8 @@ class Doctor(Base):
     municipality    = Column(String(255), nullable=False)
     province        = Column(String(255), nullable=False)
     active_status   = Column(String(255), nullable=False, default="Active")
-    created_at      = Column(DateTime, default=Text('NOW()'))
-    updated_at      = Column(DateTime, onupdate=Text('NOW()'))
+    created_at      = Column(DateTime, default=text('NOW()'))
+    updated_at      = Column(DateTime, onupdate=text('NOW()'))
 
     diagnosisdocFK        = relationship('Diagnosis', back_populates="docdiagnosisFK")
     progressnoteFK        = relationship('ProgressNote', back_populates="docentryFK")
@@ -363,7 +363,7 @@ class Doctor(Base):
 class Patient(Base):
     __tablename__ = 'patients'
 
-    patient_id      = Column(String(36), primary_key=True, default=Text('UUID()'))
+    patient_id      = Column(String(36), primary_key=True, default=text('UUID()'))
     first_name      = Column(String(255), nullable=False)
     middle_name     = Column(String(255), nullable=True)
     last_name       = Column(String(255), nullable=False)
@@ -380,8 +380,8 @@ class Patient(Base):
     blood_type      = Column(String(255), nullable=False)
     guardian        = Column(String(255), nullable=False)
     active_status   = Column(String(255), nullable=False, default="Active")
-    created_at      = Column(DateTime, default=Text('NOW()'))
-    updated_at      = Column(DateTime, onupdate=Text('NOW()'))
+    created_at      = Column(DateTime, default=text('NOW()'))
+    updated_at      = Column(DateTime, onupdate=text('NOW()'))
 
     patientFK             = relationship('Record', back_populates="patientrecordFK")
     patientdischargeFK    = relationship('Discharge', back_populates="dischargeFK")
@@ -394,12 +394,12 @@ class Patient(Base):
 class Record(Base):
     __tablename__ = 'patient_records'
 
-    patient_record_id       = Column(String(36), primary_key=True, default=Text('UUID()'))
+    patient_record_id       = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_id              = Column(String(36), ForeignKey('patients.patient_id'))
     # record_id               = Column(String(8), default=base64.b64encode(os.urandom(6)).decode('ascii'))
-    # record_id               = Column(String(8), default=Text('UUID()'))
-    created_at              = Column(DateTime, default=Text('NOW()'))
-    updated_at              = Column(DateTime, onupdate=Text('NOW()'))
+    # record_id               = Column(String(8), default=text('UUID()'))
+    created_at              = Column(DateTime, default=text('NOW()'))
+    updated_at              = Column(DateTime, onupdate=text('NOW()'))
 
 
     # created_byFK            = relationship('User', back_populates="byusersFK")
@@ -422,7 +422,7 @@ class Record(Base):
 class History(Base):
     __tablename__ = 'medical_history'
 
-    history_id              = Column(String(36), primary_key=True, default=Text('UUID()'))
+    history_id              = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_id              = Column(String(36), ForeignKey('patients.patient_id'))
     # patient_record_id       = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     chief_complaint         = Column(String(255), nullable=True)
@@ -435,30 +435,30 @@ class History(Base):
     health_conditions       = Column(String(255), nullable=True)
     special_privileges      = Column(String(255), nullable=True)
     family_history          = Column(String(255), nullable=True)
-    created_at              = Column(DateTime, default=Text('NOW()'))
-    updated_at              = Column(DateTime, onupdate=Text('NOW()'))
+    created_at              = Column(DateTime, default=text('NOW()'))
+    updated_at              = Column(DateTime, onupdate=text('NOW()'))
 
     historyFK               = relationship('Patient', back_populates="historyrecordFK")
 
 class Problem(Base):
     __tablename__ = 'problems'
 
-    problem_id              = Column(String(36), primary_key=True, default=Text('UUID()'))
+    problem_id              = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id       = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     problem_name            = Column(String(255), nullable=False)
     problem_note            = Column(String(255), nullable=False)
     active_status           = Column(String(255), nullable=False)
     date_occured            = Column(Date, nullable=False)
     date_resolved           = Column(Date, nullable=True)
-    created_at              = Column(DateTime, default=Text('NOW()'))
-    updated_at              = Column(DateTime, onupdate=Text('NOW()'))
+    created_at              = Column(DateTime, default=text('NOW()'))
+    updated_at              = Column(DateTime, onupdate=text('NOW()'))
     
     problemFK               = relationship('Record', back_populates="problemrecordFK")
 
 class Diagnosis(Base):
     __tablename__ = 'diagnosis'
 
-    diagnosis_id      = Column(String(36), primary_key=True, default=Text('UUID()'))
+    diagnosis_id      = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     doc_id            = Column(String(36), ForeignKey('doctors.doc_id'))
     diagnosis               = Column(String(255), nullable=False)
@@ -473,7 +473,7 @@ class Diagnosis(Base):
 class LabResult(Base):
     __tablename__ = 'lab_results'
 
-    lab_result_id       = Column(String(36), primary_key=True, default=Text('UUID()'))
+    lab_result_id       = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id   = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     specimen            = Column(String(255), nullable=False)
     result              = Column(String(255), nullable=False)
@@ -487,7 +487,7 @@ class LabResult(Base):
 class Prescription(Base):
     __tablename__ = 'prescriptions'
 
-    prescription_id           = Column(String(36), primary_key=True, default=Text('UUID()'))
+    prescription_id           = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id         = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     medication_name           = Column(String(255), nullable=True)
     medication_type           = Column(String(255), nullable=True)
@@ -497,8 +497,8 @@ class Prescription(Base):
     med_taken_for             = Column(String(255), nullable=True)
     doc_id                    = Column(String(36), ForeignKey('doctors.doc_id'))
     prescription_notes        = Column(String(255), nullable=False)
-    created_at                = Column(DateTime, default=Text('NOW()'))
-    updated_at                = Column(DateTime, onupdate=Text('NOW()'))
+    created_at                = Column(DateTime, default=text('NOW()'))
+    updated_at                = Column(DateTime, onupdate=text('NOW()'))
     
 
     docprescriptionFK       = relationship('Doctor', back_populates="doctorprescriptionFK")    
@@ -508,7 +508,7 @@ class Prescription(Base):
 class ProgressNote(Base):
     __tablename__ = 'progress_notes'
 
-    progress_note_id        = Column(String(36), primary_key=True, default=Text('UUID()'))
+    progress_note_id        = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id       = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     # progress_note_id    =  Column(String(36), ForeignKey('progress_notes.progress_note_id'))
     doc_id                  =  Column(String(36), ForeignKey('doctors.doc_id'))
@@ -518,8 +518,8 @@ class ProgressNote(Base):
     recommendation          = Column(String(255), nullable=False)
     consultation_date        = Column(Date, nullable=True)
     next_appointment        = Column(Date, nullable=True)
-    created_at              = Column(DateTime, default=Text('NOW()'))
-    updated_at              = Column(DateTime, onupdate=Text('NOW()'))
+    created_at              = Column(DateTime, default=text('NOW()'))
+    updated_at              = Column(DateTime, onupdate=text('NOW()'))
     
    # progressdetailFK    = relationship('ProgressNoteDetail', back_populates="progressFK")
     progressnoteFK          = relationship('Record', back_populates="progressnoterecordFK")
@@ -528,7 +528,7 @@ class ProgressNote(Base):
 class CallLog(Base):
     __tablename__ = 'patient_call_logs'
 
-    patient_call_log_id     = Column(String(36), primary_key=True, default=Text('UUID()'))
+    patient_call_log_id     = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id       = Column(String(36), ForeignKey('patient_records.patient_record_id'))
 
     call_logFK              = relationship('Record', back_populates="call_logrecordFK")
@@ -537,7 +537,7 @@ class CallLog(Base):
 class CallLogDetail(Base):
     __tablename__ = 'patient_call_log_details'
 
-    call_log_detail_id     = Column(String(36), primary_key=True, default=Text('UUID()'))
+    call_log_detail_id     = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_call_log_id    = Column(String(36), ForeignKey('patient_call_logs.patient_call_log_id'))
     call_log_date          = Column(Date, nullable=False)
     # payor_called           = Column(String(255), nullable=False)
@@ -546,43 +546,43 @@ class CallLogDetail(Base):
     contact_phone          = Column(String(255), nullable=False)
     call_details           = Column(String(255), nullable=False)
     follow_up_date         = Column(Date, nullable=True)
-    created_at             = Column(DateTime, default=Text('NOW()'))
-    updated_at             = Column(DateTime, onupdate=Text('NOW()'))
+    created_at             = Column(DateTime, default=text('NOW()'))
+    updated_at             = Column(DateTime, onupdate=text('NOW()'))
 
     call_logsFK            = relationship('CallLog', back_populates="logsFK")
 
 class Allergy(Base):
     __tablename__ = 'allergies'
 
-    allergy_id             = Column(String(36), primary_key=True, default=Text('UUID()'))
+    allergy_id             = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id      = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     allergen               = Column(String(255), nullable=True)
     reaction               = Column(String(255), nullable=True)
     severity               = Column(String(255), nullable=True)
     comment                = Column(String(255), nullable=True)
-    created_at             = Column(DateTime, default=Text('NOW()'))
-    updated_at             = Column(DateTime, onupdate=Text('NOW()'))
+    created_at             = Column(DateTime, default=text('NOW()'))
+    updated_at             = Column(DateTime, onupdate=text('NOW()'))
 
     allergiesFK            = relationship('Record', back_populates="record_allergyFK")
 
 class Immunization(Base):
     __tablename__ = 'immunizations'
 
-    immunization_id        = Column(String(36), primary_key=True, default=Text('UUID()'))
+    immunization_id        = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id      = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     vaccine                = Column(String(255), nullable=True)
     type                   = Column(String(255), nullable=True)
     date_given             = Column(Date, nullable=True)
     administered_by        = Column(String(255), nullable=True)
-    created_at             = Column(DateTime, default=Text('NOW()'))
-    updated_at             = Column(DateTime, onupdate=Text('NOW()'))
+    created_at             = Column(DateTime, default=text('NOW()'))
+    updated_at             = Column(DateTime, onupdate=text('NOW()'))
 
     immunizationsFK        = relationship('Record', back_populates="record_immunizationFK")
 
 class Medication(Base):
     __tablename__ = 'medications'
 
-    medication_id          = Column(String(36), primary_key=True, default=Text('UUID()'))
+    medication_id          = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id      = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     drug_name              = Column(String(255), nullable=True)
     dosage                 = Column(String(255), nullable=True)
@@ -594,27 +594,27 @@ class Medication(Base):
     start_date             = Column(Date, nullable=True)
     end_date               = Column(Date, nullable=True)
     medication_status      = Column(String(255), nullable=True, default="Active")
-    created_at             = Column(DateTime, default=Text('NOW()'))
-    updated_at             = Column(DateTime, onupdate=Text('NOW()'))
+    created_at             = Column(DateTime, default=text('NOW()'))
+    updated_at             = Column(DateTime, onupdate=text('NOW()'))
 
     medicationsFK          = relationship('Record', back_populates="record_medicationFK")
 
 class Attachment(Base):
     __tablename__ = 'attachments'
 
-    attachment_id          = Column(String(36), primary_key=True, default=Text('UUID()'))
+    attachment_id          = Column(String(36), primary_key=True, default=text('UUID()'))
     patient_record_id      = Column(String(36), ForeignKey('patient_records.patient_record_id'))
     attachment             = Column(String(255), nullable=True)
     type                   = Column(String(255), nullable=True)
-    created_at             = Column(DateTime, default=Text('NOW()'))
-    updated_at             = Column(DateTime, onupdate=Text('NOW()'))
+    created_at             = Column(DateTime, default=text('NOW()'))
+    updated_at             = Column(DateTime, onupdate=text('NOW()'))
 
     attachmentsFK          = relationship('Record', back_populates="record_attachmentFK")
 
 class Request(Base):
     __tablename__ = 'requests'
 
-    request_id              = Column(String(36), primary_key=True, default=Text('UUID()'))
+    request_id              = Column(String(36), primary_key=True, default=text('UUID()'))
     review_by               = Column(String(36), ForeignKey('users.user_id'))
     patient_id              = Column(String(36), ForeignKey('patients.patient_id'))
     request_information     = Column(String(255), nullable=True)
@@ -624,8 +624,8 @@ class Request(Base):
     requested_file          = Column(String(255), nullable=True)
     review_reason           = Column(String(255), nullable=True)
     active_status           = Column(String(255), nullable=False, default="Pending")
-    created_at              = Column(DateTime, nullable=True, default=Text('NOW()'))
-    updated_at              = Column(DateTime, nullable=True, onupdate=Text('NOW()'))
+    created_at              = Column(DateTime, nullable=True, default=text('NOW()'))
+    updated_at              = Column(DateTime, nullable=True, onupdate=text('NOW()'))
 
     reviewbyFK = relationship('User', back_populates='requestreviewFK')
     requesterFK = relationship('Patient', back_populates='patientrequestFK')
@@ -858,9 +858,9 @@ class HospitalServiceName(Base):
     description_name = Column(String(255),nullable=False,unique=True, index=True)
     unit_price = Column(Float, nullable=False)
     status = Column(String(100), default='Active')
-    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=False)
     created_at = Column(DateTime,nullable=False)
-    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
     updated_at = Column(DateTime,nullable=True)
 
 class HospitalServices(Base):
@@ -873,9 +873,9 @@ class HospitalServices(Base):
     total_amount= Column(Float,nullable=False)
  
     status = Column(String(100), default='Pending',nullable=False) #nullable=False             ### STATUS TO FOR BILLING ###
-    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=False)
     created_at = Column(DateTime,nullable=False)
-    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
     updated_at = Column(DateTime,nullable=True)
 
     hc_treatment_services = relationship(
@@ -886,7 +886,7 @@ class HospitalServices(Base):
 
 class HospitalChargesBill(Base):
     __tablename__ = "hospital_charges_bill"
-    id = Column(CHAR(36), primary_key=True,index=True)
+    id = Column(String(36), primary_key=True,index=True)
     invoice_no= Column(String(100) ,unique=True)
     invoice_date = Column(DateTime, nullable=False)
     inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
@@ -895,9 +895,9 @@ class HospitalChargesBill(Base):
     cancellation_return = Column(Float, nullable=True)
 
     status = Column(String(100), default='Active')
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
     
     hospital_charges_id_info = relationship(
@@ -905,7 +905,7 @@ class HospitalChargesBill(Base):
 
 class TreatmentBill(Base):
     __tablename__ = "treatment_bill"
-    id = Column(CHAR(36), primary_key=True,index=True)
+    id = Column(String(36), primary_key=True,index=True)
     invoice_no= Column(String(100) ,unique=True)
     invoice_date = Column(DateTime, nullable=False)
     inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
@@ -915,9 +915,9 @@ class TreatmentBill(Base):
     cancellation_return = Column(Float, nullable=True)
 
     status = Column(String(255), nullable=False, server_default="Pending")
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
 
     treatment_id_info = relationship(
@@ -925,7 +925,7 @@ class TreatmentBill(Base):
 
 class LabRequestBill(Base):
     __tablename__ = "lab_requests_bill"
-    id = Column(CHAR(36), primary_key=True,index=True)
+    id = Column(String(36), primary_key=True,index=True)
     invoice_no= Column(String(100) ,unique=True)
     invoice_date = Column(DateTime, nullable=False)
 
@@ -936,9 +936,9 @@ class LabRequestBill(Base):
     cancellation_return = Column(Float, nullable=True)
 
     status = Column(String(255), nullable=False, server_default="Pending")
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
 
     lab_requests_id_info = relationship(
@@ -946,25 +946,25 @@ class LabRequestBill(Base):
 
 class PharmacyBill(Base):
     __tablename__ = "pharmacy_bill"
-    id = Column(CHAR(36), primary_key=True,index=True)
+    id = Column(String(36), primary_key=True,index=True)
     invoice_no= Column(String(100) ,unique=True)
     invoice_date = Column(DateTime, nullable=False)
 
     inpatient_bill_id = Column(String(36), ForeignKey("inpatient_bills.id"),nullable=True)
     # pharmacy_invoice_id = Column(String(36), ForeignKey("pharmacy_invoice.id"),nullable=False) #NEW1 REMOVED COLUMN
-    medicine_pr_id= Column(CHAR(36),ForeignKey("medicine_pr.medpr_id"),nullable=False)  #NEW1 NEW COLUMN #medicalsupplies_pr
+    medicine_pr_id= Column(String(36),ForeignKey("medicine_pr.medpr_id"),nullable=False)  #NEW1 NEW COLUMN #medicalsupplies_pr
     total_amount= Column(Float,nullable=False)
     cancellation_return = Column(Float, nullable=True  , default=00)
 
     status = Column(String(255), nullable=False, server_default="Pending")
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())  
 
 class RoomBill(Base):
     __tablename__ = "room_bill"    
-    id = Column(CHAR(36), primary_key=True)
+    id = Column(String(36), primary_key=True)
     invoice_no = Column(String(100), nullable=False, unique=True)
     invoice_date = Column(DateTime, nullable=False)
     inpatient_id = Column(String(36), ForeignKey("inpatients.admission_id"), nullable=False) #NEW1 Deleted management
@@ -972,9 +972,9 @@ class RoomBill(Base):
     total_amount = Column(Float, nullable=False)
 
     status = Column(String(255), nullable=False, server_default="Pending")
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
     
     inpatient_management_id_info = relationship(
@@ -982,7 +982,7 @@ class RoomBill(Base):
 
 class DoctorFeeBill(Base):
     __tablename__ = "doctor_fee_bill"
-    id = Column(CHAR(36), primary_key=True,index=True)
+    id = Column(String(36), primary_key=True,index=True)
     invoice_no= Column(String(100) ,unique=True)
     invoice_date = Column(DateTime, nullable=False)
 
@@ -997,14 +997,14 @@ class DoctorFeeBill(Base):
     patient_due = Column(Float, nullable=False)
 
     status = Column(String(100), default='Active')
-    created_by = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
+    updated_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())   
     
 class InpatientBill(Base):
     __tablename__ = "inpatient_bills"    
-    id = Column(CHAR(36), primary_key=True)
+    id = Column(String(36), primary_key=True)
     inpatient_bill_no = Column(String(255), nullable=False, unique=True)
     admission_id = Column(String(36), ForeignKey("inpatients.admission_id"),nullable=False)
     inpatient_payment_id = Column(String(36), ForeignKey("inpatient_payments.id"),nullable=True)
@@ -1013,9 +1013,9 @@ class InpatientBill(Base):
     due_date = Column(Date,nullable=False)
     balance_due = Column(Float, nullable=False, server_default="0")
     status = Column(String(255), nullable=False, server_default="Pending")
-    created_by = Column(CHAR(36), ForeignKey("users.id"),nullable=False)
+    created_by = Column(String(36), ForeignKey("users.id"),nullable=False)
     created_at = Column(DateTime (timezone=True), nullable=False, server_default=func.now())
-    updated_by = Column(CHAR(36),ForeignKey("users.id"),nullable=True)
+    updated_by = Column(String(36),ForeignKey("users.id"),nullable=True)
     updated_at = Column(DateTime (timezone=True), nullable=True, onupdate=func.now())
 
     admission_info = relationship(
@@ -2451,14 +2451,14 @@ class SubDepartment(Base):
 class Attendance(Base):
     __tablename__ = 'attendances'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
     time_in_id = Column(String(36), ForeignKey('time_ins.id'), nullable=False)
     time_out_id = Column(String(36), ForeignKey('time_outs.id'), nullable=False)
     hours_worked = Column(String(36), nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='attendances', lazy='joined')
     time_ins = relationship('TimeIn', back_populates='attendances', lazy='joined')
@@ -2468,7 +2468,7 @@ class Attendance(Base):
 class Employee(Base):
     __tablename__ = 'employees'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_type_id = Column(Integer, ForeignKey('employee_types.id'), nullable=True)
     employee_status_id = Column(Integer, ForeignKey('employee_status.id'), nullable=True)
     user_id = Column(String(36), ForeignKey('users.id'), nullable=True)
@@ -2481,9 +2481,9 @@ class Employee(Base):
     friday = Column(String(255), nullable=True)
     saturday = Column(String(255), nullable=True)
     sunday = Column(String(255), nullable=True)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     users = relationship('User', back_populates='employees', lazy='joined')
     employee_types = relationship('EmployeeType', back_populates='employees', lazy='joined')
@@ -2499,12 +2499,12 @@ class Employee(Base):
 class EmployeeStatus(Base):
     __tablename__ = 'employee_status'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     title = Column(String(255), nullable=False)
     number_of_days = Column(String(255), nullable=False)
-    active_status = Column(String(255), nullable=True, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=True, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='employee_status')
 
@@ -2512,18 +2512,18 @@ class EmployeeStatus(Base):
 class EmployeeType(Base):
     __tablename__ = 'employee_types'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     title = Column(String(255), nullable=False)
-    active_status = Column(String(255), nullable=True, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=True, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='employee_types')
 
 class Leave(Base):
     __tablename__ = 'leaves'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
     leave_type_id = Column(String(36), ForeignKey('leave_types.id'), nullable=False)
     leave_sub_type_id = Column(String(36), ForeignKey('leave_sub_types.id'), nullable=False)
@@ -2531,10 +2531,10 @@ class Leave(Base):
     reason = Column(String(500), nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
-    status = Column(String(255), nullable=False, server_default=Text("'Pending'"))
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    status = Column(String(255), nullable=False, server_default=text("'Pending'"))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     leave_types = relationship('LeaveType', back_populates='leaves', lazy='joined')
     employees = relationship('Employee', back_populates='leaves', lazy='joined')
@@ -2543,13 +2543,13 @@ class Leave(Base):
 class LeaveSubType(Base):
     __tablename__ = 'leave_sub_types'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     title = Column(String(255), nullable=False)
     number_of_days = Column(String(255), nullable=False)
     leave_type_id = Column(String(36), ForeignKey('leave_types.id'), nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     leave_types = relationship('LeaveType', back_populates='leave_sub_types', lazy='joined')
     leaves = relationship('Leave', back_populates='leave_sub_types')
@@ -2557,11 +2557,11 @@ class LeaveSubType(Base):
 class LeaveType(Base):
     __tablename__ = 'leave_types'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     title = Column(String(255), nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     leaves = relationship('Leave', back_populates='leave_types')
     leave_sub_types = relationship('LeaveSubType', back_populates='leave_types')
@@ -2569,17 +2569,17 @@ class LeaveType(Base):
 class MissedTime(Base):
     __tablename__ = 'missed_times'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(String(36), ForeignKey('employees.id'), nullable=False)
     approved_by = Column(String(36), ForeignKey('users.id'), nullable=False)
     date = Column(DateTime, nullable=False)
     time_log = Column(Time, nullable=False)
     time_log_type = Column(String(255), nullable=False)
     proof = Column(String(255), nullable=False)
-    status = Column(String(255), nullable=False, server_default=Text("'Pending'"))
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    status = Column(String(255), nullable=False, server_default=text("'Pending'"))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='missed_times', lazy='joined')
     users = relationship('User', back_populates='missed_times', lazy='joined')
@@ -2587,7 +2587,7 @@ class MissedTime(Base):
 class ShiftChange(Base):
     __tablename__ = 'shift_changes'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(String(36), ForeignKey('employees.id'), nullable=True)
     employee_type_id = Column(String(36), nullable=True)
     user_id = Column(String(36), nullable=True)
@@ -2599,10 +2599,10 @@ class ShiftChange(Base):
     friday = Column(String(255), nullable=True)
     saturday = Column(String(255), nullable=True)
     sunday = Column(String(255), nullable=True)
-    status = Column(String(255), nullable=False, server_default=Text("'Pending'"))
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    status = Column(String(255), nullable=False, server_default=text("'Pending'"))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
 
     employees = relationship('Employee', back_populates='shift_changes', lazy='joined')
@@ -2611,13 +2611,13 @@ class ShiftChange(Base):
 class ShiftType(Base):
     __tablename__ = 'shift_types'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     title = Column(String(255), nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='shift_types')
     shift_changes = relationship('ShiftChange', back_populates='shift_types')
@@ -2625,12 +2625,12 @@ class ShiftType(Base):
 class TimeIn(Base):
     __tablename__ = 'time_ins'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
     time_log = Column(Time, nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='time_ins', lazy='joined')
     attendances = relationship('Attendance', back_populates='time_ins')
@@ -2638,12 +2638,12 @@ class TimeIn(Base):
 class TimeOut(Base):
     __tablename__ = 'time_outs'
 
-    id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    id = Column(String(36), primary_key=True, default=text('UUID()'))
     employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
     time_log = Column(Time, nullable=False)
-    active_status = Column(String(255), nullable=False, server_default=Text("'Active'"))
-    created_at = Column(DateTime, server_default=Text('NOW()'))
-    updated_at = Column(DateTime, server_onupdate=Text('NOW()'))
+    active_status = Column(String(255), nullable=False, server_default=text("'Active'"))
+    created_at = Column(DateTime, server_default=text('NOW()'))
+    updated_at = Column(DateTime, server_onupdate=text('NOW()'))
 
     employees = relationship('Employee', back_populates='time_outs', lazy='joined')
     attendances = relationship('Attendance', back_populates='time_outs')
@@ -2654,7 +2654,7 @@ class TimeOut(Base):
 class Asset(Base):
     __tablename__ = 'assets'
 
-    asset_id = Column(String(60), primary_key=True, default=Text('UUID()'))
+    asset_id = Column(String(60), primary_key=True, default=text('UUID()'))
     asset_provider_id = Column(String(60), ForeignKey('asset_providers.asset_provider_id'), nullable=True)
     asset_type_id = Column(String(60), ForeignKey('asset_types.asset_type_id'), nullable=True)
     asset_number = Column(Integer, nullable=True)
@@ -2669,8 +2669,8 @@ class Asset(Base):
     asset_status = Column(String(255), nullable=True, default=('Available'))
     asset_remarks = Column(String(255), nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
     asset_provider = relationship('Asset_provider', back_populates='asset', lazy='joined')
@@ -2680,32 +2680,32 @@ class Asset(Base):
 class Asset_provider(Base):
     __tablename__ = 'asset_providers'
 
-    asset_provider_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    asset_provider_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_provider_name = Column(String(255), nullable=True)
     asset_provider_contact = Column(String(255), nullable=True)
     asset_provider_email = Column(String(255), nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     asset = relationship('Asset')
 
 class Asset_Type(Base):
     __tablename__ = 'asset_types'
 
-    asset_type_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    asset_type_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_type_title = Column(String(255), nullable=True)
     description = Column(Text, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     asset = relationship('Asset')
 
 class Asset_Warranty(Base):
     __tablename__ = 'asset_warranty'
 
-    warranty_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    warranty_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     warranty_length = Column(Numeric, nullable=True)
     expiration_date = Column(DateTime, nullable=True)
@@ -2714,8 +2714,8 @@ class Asset_Warranty(Base):
     warranty_note = Column(String(255), nullable=True)
     active_status = Column(Text, nullable=True, default=('Active'))
 
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
     created_by = Column(String(36), ForeignKey('users.user_id'), nullable=True)
 
     asset_type = relationship('Asset', foreign_keys=[asset_id], lazy='joined')
@@ -2724,13 +2724,13 @@ class Asset_Warranty(Base):
 class Broken_Asset(Base):
     __tablename__ = 'broken_assets'
 
-    broken_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    broken_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     remarks = Column(Text, nullable=True)
     broken_date = Column(DateTime, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
@@ -2740,21 +2740,21 @@ class Broken_Asset(Base):
 class Asset_check_in(Base):
     __tablename__ = 'asset_check_in'
 
-    check_in_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    check_in_id = Column(String(36), primary_key=True, default=text('UUID()'))
     check_out_id = Column(String(60), ForeignKey('asset_check_out.check_out_id'), nullable=True)
     return_date = Column(DateTime, nullable=True)
     return_location = Column(String(255), nullable=True)
     remarks = Column(Text, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
     
     check_out_details = relationship('Asset_check_out', foreign_keys=[check_out_id], lazy='joined')
 
 class Asset_check_out(Base):
     __tablename__ = 'asset_check_out'
 
-    check_out_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    check_out_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(60), ForeignKey('assets.asset_id'), nullable=True)
     user_id = Column(String(60), ForeignKey('users.user_id'), nullable=True)
     department_id = Column(String(60), ForeignKey('department.department_id'), nullable=True)
@@ -2763,8 +2763,8 @@ class Asset_check_out(Base):
     check_out_due = Column(DateTime, nullable=True)
     remarks = Column(Text, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
    
     on_department = relationship('Department', foreign_keys=[department_id], lazy='joined')
     on_user = relationship('User', foreign_keys=[user_id], lazy='joined')
@@ -2774,22 +2774,22 @@ class Asset_check_out(Base):
 class Department(Base):
     __tablename__ = 'department'
 
-    department_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    department_id = Column(String(36), primary_key=True, default=text('UUID()'))
     department_name = Column(String(255), nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
 
 class Dispose_Asset(Base):
     __tablename__ = 'dispose_assets'
 
-    dispose_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    dispose_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     remarks = Column(Text, nullable=True)
     dispose_to = Column(String(255), nullable=True)
     dispose_date = Column(DateTime, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
@@ -2799,18 +2799,18 @@ class Dispose_Asset(Base):
 class Events(Base):
     __tablename__ = 'events'
 
-    event_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    event_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     event_title = Column(String(255), nullable=True)
     event_message = Column(String(255), nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
 class Maintenance(Base):
     __tablename__ = 'maintenances'
 
-    maintenance_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    maintenance_id = Column(String(36), primary_key=True, default=text('UUID()'))
     maintenance_provider_id = Column(String(36), ForeignKey('maintenance_providers.maintenance_provider_id'), nullable=False)
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=False)
     maintenance_name = Column(String(255), nullable=True)
@@ -2823,47 +2823,47 @@ class Maintenance(Base):
     maintenance_status = Column(String(255), nullable=True)
     remarks = Column(String(255), nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     Maintenance_provider = relationship('Maintenance_provider', back_populates='maintenance', lazy='joined')
 
 class Maintenance_provider(Base):
     __tablename__ = 'maintenance_providers'
 
-    maintenance_provider_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    maintenance_provider_id = Column(String(36), primary_key=True, default=text('UUID()'))
     maintenance_provider_name = Column(String(255), nullable=True)
     maintenance_provider_contact = Column(String(255), nullable=True)
     maintenance_provider_email = Column(String(255), nullable=True) 
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     maintenance = relationship('Maintenance')
 
 class Maintenance_Report(Base):
     __tablename__ = 'maintenance_reports'
 
-    maintenance_report_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    maintenance_report_id = Column(String(36), primary_key=True, default=text('UUID()'))
     maintenance_id = Column(String(36), ForeignKey('maintenances.maintenance_id'), nullable=False)
     maintenance_cost = Column(Numeric, nullable=True)
     completed_date = Column(DateTime, nullable=True)
     remarks = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     maintenance_details = relationship('Maintenance', foreign_keys=[maintenance_id], lazy='joined')
 
 class Missing_Asset(Base):
     __tablename__ = 'missing_assets'
 
-    missing_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    missing_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     remarks = Column(Text, nullable=True)
     missing_date = Column(DateTime, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
@@ -2873,15 +2873,15 @@ class Missing_Asset(Base):
 class Repair_Asset(Base):
     __tablename__ = 'repair_assets'
 
-    repair_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    repair_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     assigned_to = Column(String(255), nullable=True)
     repair_date = Column(DateTime, nullable=True)
     repair_price = Column(Numeric, nullable=True)
     remarks = Column(Text, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
@@ -2891,7 +2891,7 @@ class Repair_Asset(Base):
 class Request_Asset(Base):
     __tablename__ = 'request_assets'
 
-    request_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    request_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_type_id = Column(String(36), ForeignKey('asset_types.asset_type_id'), nullable=True)
     request_brand = Column(String(255), nullable=True)
     request_model = Column(DateTime, nullable=True)
@@ -2900,8 +2900,8 @@ class Request_Asset(Base):
     request_remark = Column(Text, nullable=True)
     active_status = Column(Text, nullable=True, default=('Active'))
 
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
     created_by = Column(String(36), ForeignKey('users.user_id'), nullable=True)
     updated_by = Column(String(36), ForeignKey('users.user_id'), nullable=True)
 
@@ -2912,7 +2912,7 @@ class Request_Asset(Base):
 class Sell_Asset(Base):
     __tablename__ = 'sell_assets'
 
-    sell_id = Column(String(36), primary_key=True, default=Text('UUID()'))
+    sell_id = Column(String(36), primary_key=True, default=text('UUID()'))
     asset_id = Column(String(36), ForeignKey('assets.asset_id'), nullable=True)
     sell_to = Column(String(255), nullable=True)
     sell_to_contact = Column(String(255), nullable=True)
@@ -2921,8 +2921,8 @@ class Sell_Asset(Base):
     sell_price = Column(Numeric, nullable=True)
     remarks = Column(Text, nullable=True)
     active_status = Column(String(255), nullable=True, default=('Active'))
-    created_at = Column(DateTime, default=Text('NOW()'))
-    updated_at = Column(DateTime, onupdate=Text('NOW()'))
+    created_at = Column(DateTime, default=text('NOW()'))
+    updated_at = Column(DateTime, onupdate=text('NOW()'))
 
     created_by = Column(String(60), ForeignKey('users.user_id'))
 
@@ -3941,7 +3941,7 @@ class Hospital_Departments(Base):
 
     hospital_department_id              = Column(String(36), primary_key=True, default=text('UUID()'))
     hospital_department_name            = Column(String(255), nullable=False)
-    hospital_department_description     = Column(Desc(255), nullable=False)
+    hospital_department_description     = Column(Text, nullable=False)
     # hospital_manager                    = Column(String(255), nullable=False, default="Qura (Subject to Change)")
 
     created_at                          = Column(DateTime, default=text('NOW()'))
@@ -3964,7 +3964,7 @@ class Inbound_Reports(Base):
 
     inbound_report_id           = Column(String(36), primary_key=True, default=text('UUID()'))
     status                      = Column(String(255), nullable=False)
-    # total_quantity              = Column(mysql.INTEGER(20), nullable=False)
+    # total_quantity              = Column(INTEGER(20), nullable=False)
 
     created_at                  = Column(DateTime, default=text('NOW()'))
     updated_at                  = Column(DateTime, onupdate=text('NOW()'))
@@ -4041,7 +4041,7 @@ class Outbound_Report_Details(Base):
 
     outbound_r_details_id       = Column(String(36), primary_key=True, default=text('UUID()'))
     status                      = Column(String(255), nullable=False)
-    quantity                    = Column(mysql.INTEGER(20), nullable=False)
+    quantity                    = Column(Integer(20), nullable=False)
 
     created_at                  = Column(DateTime, default=text('NOW()'))
     updated_at                  = Column(DateTime, onupdate=text('NOW()'))
@@ -4059,7 +4059,7 @@ class Outbound_Reports(Base):
 
     outbound_report_id          = Column(String(36), primary_key=True, default=text('UUID()'))
     status                      = Column(String(255), nullable=False)
-    total_quantity              = Column(mysql.INTEGER(20), nullable=False)
+    total_quantity              = Column(Integer(20), nullable=False)
     expected_shipment_date      = Column(DateTime(255), nullable=False)
     complete_shipment_date      = Column(DateTime(255), nullable=True)
 
@@ -4081,7 +4081,7 @@ class Request_Details(Base):
 
 
     request_details_id          = Column(String(36), primary_key=True, default=text('UUID()'))
-    quantity                    = Column(mysql.INTEGER(20), nullable=False)
+    quantity                    = Column(Integer(20), nullable=False)
     status                      = Column(String(255), nullable=False, default="Pending")
 
     created_at                  = Column(DateTime, default=text('NOW()'))
@@ -4116,7 +4116,7 @@ class Return_Details(Base):
 
 
     return_detail_id            = Column(String(36), primary_key=True, default=text('UUID()'))
-    quantity                    = Column(mysql.INTEGER(20), nullable=False)
+    quantity                    = Column(Integer(20), nullable=False)
     status                      = Column(String(255), nullable=False, default="Pending")
 
     created_at                  = Column(DateTime, default=text('NOW()'))
@@ -4151,7 +4151,7 @@ class Suppliers(Base):
     supplier_name                   = Column(String(255), nullable=False)
     supplier_contact                = Column(String(255), nullable=False, unique=True)
     supplier_email                  = Column(String(255), nullable=False, unique=True)
-    supplier_description            = Column(Desc(255), nullable=False)
+    supplier_description            = Column(Text, nullable=False)
 
     created_at                      = Column(DateTime, default=text('NOW()'))
     updated_at                      = Column(DateTime, onupdate=text('NOW()'))
@@ -4166,7 +4166,7 @@ class Supply_Categories(Base):
 
     supply_category_id              = Column(String(36), primary_key=True, default=text('UUID()'))
     supply_category_name            = Column(String(255), nullable=False, unique=True)
-    supply_category_description     = Column(Desc(255), nullable=True)
+    supply_category_description     = Column(Text, nullable=True)
 
     created_at                      = Column(DateTime, default=text('NOW()'))
     updated_at                      = Column(DateTime, onupdate=text('NOW()'))
@@ -4181,10 +4181,10 @@ class Supplies(Base):
 
     supply_id                       = Column(String(36), primary_key=True, default=text('UUID()'))
     supply_name                     = Column(String(255), nullable=False)
-    supply_quantity                 = Column(mysql.INTEGER(20), nullable=False)
+    supply_quantity                 = Column(Integer(20), nullable=False)
     supply_unit_type                = Column(String(255), nullable=False)
     supply_unit_cost                = Column(DECIMAL, nullable=False)
-    supply_description              = Column(Desc(255), nullable=False)
+    supply_description              = Column(Text, nullable=False)
     supply_reorder_interval         = Column(String(255), nullable=False)
     supply_expiration               = Column(DateTime(255), nullable=True)
     supply_status                   = Column(String(255), nullable=True, default="Good")
@@ -4211,7 +4211,7 @@ class Warehouses(Base):
 
     warehouse_id                = Column(String(36), primary_key=True, default=text('UUID()'))
     warehouse_name              = Column(String(255), nullable=False)
-    warehouse_description       = Column(Desc(255), nullable=False)
+    warehouse_description       = Column(Text, nullable=False)
     warehouse_address           = Column(String(255), nullable=False)
     warehouse_contact           = Column(String(255), nullable=False, unique=True)
 
